@@ -5,195 +5,237 @@
   <title>Dashboard - Budgetly</title>
 
   <script>
-    tailwind.config = {
-      darkMode: 'class'
-    }
+    tailwind.config = { darkMode: 'class' }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-white text-black min-h-screen">
+<body class="bg-white text-black min-h-screen flex">
 
-  <!-- Navbar -->
-  <nav class="border-b border-black">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Budgetly</h1>
-      <button onclick="logout()" class="border border-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition">
+  <!-- SIDEBAR -->
+  <aside class="w-64 border-r border-black p-6 flex flex-col">
+
+    <h1 class="text-2xl font-bold mb-10">Budgetly</h1>
+
+    <nav class="space-y-4">
+
+      <button onclick="showSection('overview')" 
+        class="w-full text-left px-4 py-2 rounded hover:bg-black hover:text-white transition">
+        Overview
+      </button>
+
+      <button onclick="showSection('transactions')" 
+        class="w-full text-left px-4 py-2 rounded hover:bg-black hover:text-white transition">
+        Transactions
+      </button>
+
+      <button onclick="showSection('wallets')" 
+        class="w-full text-left px-4 py-2 rounded hover:bg-black hover:text-white transition">
+        Wallets
+      </button>
+
+    </nav>
+
+    <div class="mt-auto">
+      <button onclick="logout()" 
+        class="w-full border border-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition">
         Logout
       </button>
     </div>
-  </nav>
 
-  <!-- Main Content -->
-  <div class="max-w-6xl mx-auto px-6 py-10">
+  </aside>
 
-    <!-- Welcome -->
-    <h2 class="text-3xl font-bold mb-8">Welcome Back 👋</h2>
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 p-10">
 
-    <!-- Summary Cards -->
-    <div class="grid md:grid-cols-3 gap-6 mb-10">
+    <!-- OVERVIEW SECTION -->
+    <div id="overviewSection">
 
-      <div class="border border-black p-6 rounded-xl">
-        <h3 class="text-lg font-semibold mb-2">Total Income</h3>
-        <p class="text-2xl font-bold">₱0.00</p>
+      <h2 class="text-3xl font-bold mb-8">Overview</h2>
+
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <div class="border border-black p-6 rounded-xl">
+          <h3 class="font-semibold mb-2">Total Income</h3>
+          <p class="text-2xl font-bold">₱0.00</p>
+        </div>
+
+        <div class="border border-black p-6 rounded-xl">
+          <h3 class="font-semibold mb-2">Total Expenses</h3>
+          <p class="text-2xl font-bold">₱0.00</p>
+        </div>
+
+        <div class="border border-black p-6 rounded-xl">
+          <h3 class="font-semibold mb-2">Remaining Balance</h3>
+          <p class="text-2xl font-bold">₱0.00</p>
+        </div>
+
       </div>
 
-      <div class="border border-black p-6 rounded-xl">
-        <h3 class="text-lg font-semibold mb-2">Total Expenses</h3>
-        <p class="text-2xl font-bold">₱0.00</p>
-      </div>
-
-      <div class="border border-black p-6 rounded-xl">
-        <h3 class="text-lg font-semibold mb-2">Remaining Balance</h3>
-        <p class="text-2xl font-bold">₱0.00</p>
+      <div class="mt-10 border border-black p-6 rounded-xl">
+        <h3 class="font-semibold mb-4">Behavioral Insights</h3>
+        <p class="text-gray-600">
+          Insights will appear here based on spending patterns.
+        </p>
       </div>
 
     </div>
 
-    <!-- Add Transaction Button -->
-    <div class="border border-black p-6 rounded-xl mb-8">
-  <h3 class="text-xl font-semibold mb-4">Add Transaction</h3>
 
-  <form id="transactionForm" class="grid md:grid-cols-3 gap-4">
-    
-    <input 
-      type="text" 
-      id="description" 
-      placeholder="Description"
-      class="border border-black p-3 rounded-lg"
-      required
-    >
+    <!-- TRANSACTIONS SECTION -->
+    <div id="transactionsSection" class="hidden">
 
-    <input 
-      type="number" 
-      id="amount" 
-      placeholder="Amount"
-      class="border border-black p-3 rounded-lg"
-      required
-    >
+      <h2 class="text-3xl font-bold mb-8">Transactions</h2>
 
-    <select 
-      id="type"
-      class="border border-black p-3 rounded-lg"
-      required
-    >
-      <option value="">Select Type</option>
-      <option value="income">Income</option>
-      <option value="expense">Expense</option>
-    </select>
+      <div class="border border-black p-6 rounded-xl mb-8">
+        <h3 class="text-xl font-semibold mb-4">Add Transaction</h3>
 
-    <button 
-      type="submit"
-      class="bg-black text-white py-3 rounded-lg md:col-span-3"
-    >
-      Add Transaction
-    </button>
+        <form id="transactionForm" class="grid md:grid-cols-4 gap-4">
 
-  </form>
-</div>
+          <!-- Wallet Dropdown -->
+          <select id="walletSelect"
+            class="border border-black p-3 rounded-lg" required>
 
-<!-- Transaction List -->
-<div>
-  <h3 class="text-xl font-semibold mb-4">Transactions</h3>
-  <ul id="transactionList" class="space-y-3"></ul>
-</div>
+            <option value="" disabled selected hidden>
+              Select Wallet
+            </option>
 
-  </div>
+            <option value="">To add</option>
+          </select>
 
-  <!-- Logout Script -->
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { 
-    getAuth, 
-    signOut, 
-    onAuthStateChanged 
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+          <!-- Description -->
+          <input type="text" id="description"
+            placeholder="Description"
+            class="border border-black p-3 rounded-lg" required>
 
-  import { 
-    getFirestore,
-    collection,
-    addDoc,
-    query,
-    where,
-    getDocs
-  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+          <!-- Amount -->
+          <input type="number" id="amount"
+            placeholder="Amount"
+            class="border border-black p-3 rounded-lg" required>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
-    authDomain: "budgetly-6a559.firebaseapp.com",
-    projectId: "budgetly-6a559",
-    appId: "1:682783929618:web:d2ab6e0f01786e6980efcb"
-  };
+          <!-- Type -->
+          <select id="type" 
+            class="border border-black p-3 rounded-lg" required>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+            <option value="" disabled selected hidden>
+              Type
+            </option>
 
-  let currentUser;
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
 
-  // Protect dashboard
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-    } else {
-      currentUser = user;
-      loadTransactions();
+          <!-- Category -->
+          <div class="grid grid-cols-2 gap-4 md:col-span-2">
+
+            <!-- Category Dropdown -->
+            <select id="category"
+              class="border border-black p-3 rounded-lg"
+              onchange="checkCategory()"
+              required>
+
+              <option value="" disabled selected hidden>
+                Select Category
+              </option>
+
+              <option value="Food">Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Bills">Bills</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Salary">Salary</option>
+              <option value="Other">Other</option>
+
+            </select>
+
+            <!-- Custom Category Input -->
+            <input
+              type="text"
+              id="customCategory"
+              placeholder="Custom Category"
+              class="border border-black p-3 rounded-lg invisible"
+            >
+
+          </div>
+
+          <button type="submit"
+            class="bg-black text-white py-3 rounded-lg md:col-span-4">
+            Add Transaction
+          </button>
+
+        </form> 
+      </div>
+
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Transaction List</h3>
+        <div class="border border-black p-4 rounded-lg">
+          Transactions will appear here.
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- WALLETS SECTION -->
+    <div id="walletsSection" class="hidden">
+
+      <h2 class="text-3xl font-bold mb-8">Wallets</h2>
+
+      <div class="border border-black p-6 rounded-xl mb-8">
+        <h3 class="text-xl font-semibold mb-4">Add Wallet</h3>
+
+        <form class="flex gap-4">
+          <input type="text" placeholder="Wallet Name"
+            class="border border-black p-3 rounded-lg flex-1">
+
+          <button type="submit"
+            class="bg-black text-white px-6 rounded-lg">
+            Add
+          </button>
+        </form>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <div class="border border-black p-6 rounded-xl">
+          <h3 class="font-semibold">Cash</h3>
+          <p class="text-xl mt-2">₱0.00</p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- SECTION SWITCHING SCRIPT -->
+  <script>
+    function showSection(section) {
+      document.getElementById("overviewSection").classList.add("hidden");
+      document.getElementById("transactionsSection").classList.add("hidden");
+      document.getElementById("walletsSection").classList.add("hidden");
+
+      document.getElementById(section + "Section").classList.remove("hidden");
     }
-  });
 
-  // Logout
-  window.logout = async function() {
-    await signOut(auth);
-    window.location.href = "login.html";
-  };
+    function logout() {
+      window.location.href = "login.html";
+    }
+  </script>
 
-  // Add Transaction
-  const form = document.getElementById("transactionForm");
+<script>
+  function checkCategory() {
+    const category = document.getElementById("category").value;
+    const customInput = document.getElementById("customCategory");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const description = document.getElementById("description").value;
-    const amount = parseFloat(document.getElementById("amount").value);
-    const type = document.getElementById("type").value;
-
-    await addDoc(collection(db, "transactions"), {
-      uid: currentUser.uid,
-      description,
-      amount,
-      type,
-      createdAt: new Date()
-    });
-
-    form.reset();
-    loadTransactions();
-  });
-
-  // Load Transactions
-  async function loadTransactions() {
-    const list = document.getElementById("transactionList");
-    list.innerHTML = "";
-
-    const q = query(
-      collection(db, "transactions"),
-      where("uid", "==", currentUser.uid)
-    );
-
-    const snapshot = await getDocs(q);
-
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-
-      const li = document.createElement("li");
-      li.className = "border border-black p-3 rounded-lg flex justify-between";
-
-      li.innerHTML = `
-        <span>${data.description} (${data.type})</span>
-        <span>₱${data.amount}</span>
-      `;
-
-      list.appendChild(li);
-    });
+    if (category === "Other") {
+      customInput.classList.remove("invisible");
+      customInput.required = true;
+    } else {
+      customInput.classList.add("invisible");
+      customInput.required = false;
+      customInput.value = "";
+    }
   }
 </script>
 
