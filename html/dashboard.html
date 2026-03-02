@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Budgetly</title>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white text-black min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="border-b border-black">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Budgetly</h1>
+      <button onclick="logout()" class="border border-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition">
+        Logout
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-6xl mx-auto px-6 py-10">
+
+    <!-- Welcome -->
+    <h2 class="text-3xl font-bold mb-8">Welcome Back 👋</h2>
+
+    <!-- Summary Cards -->
+    <div class="grid md:grid-cols-3 gap-6 mb-10">
+
+      <div class="border border-black p-6 rounded-xl">
+        <h3 class="text-lg font-semibold mb-2">Total Income</h3>
+        <p class="text-2xl font-bold">₱0.00</p>
+      </div>
+
+      <div class="border border-black p-6 rounded-xl">
+        <h3 class="text-lg font-semibold mb-2">Total Expenses</h3>
+        <p class="text-2xl font-bold">₱0.00</p>
+      </div>
+
+      <div class="border border-black p-6 rounded-xl">
+        <h3 class="text-lg font-semibold mb-2">Remaining Balance</h3>
+        <p class="text-2xl font-bold">₱0.00</p>
+      </div>
+
+    </div>
+
+    <!-- Add Transaction Button -->
+    <div class="border border-black p-6 rounded-xl mb-8">
+  <h3 class="text-xl font-semibold mb-4">Add Transaction</h3>
+
+  <form id="transactionForm" class="grid md:grid-cols-3 gap-4">
+    
+    <input 
+      type="text" 
+      id="description" 
+      placeholder="Description"
+      class="border border-black p-3 rounded-lg"
+      required
+    >
+
+    <input 
+      type="number" 
+      id="amount" 
+      placeholder="Amount"
+      class="border border-black p-3 rounded-lg"
+      required
+    >
+
+    <select 
+      id="type"
+      class="border border-black p-3 rounded-lg"
+      required
+    >
+      <option value="">Select Type</option>
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+
+    <button 
+      type="submit"
+      class="bg-black text-white py-3 rounded-lg md:col-span-3"
+    >
+      Add Transaction
+    </button>
+
+  </form>
+</div>
+
+<!-- Transaction List -->
+<div>
+  <h3 class="text-xl font-semibold mb-4">Transactions</h3>
+  <ul id="transactionList" class="space-y-3"></ul>
+</div>
+
+  </div>
+
+  <!-- Logout Script -->
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getAuth, 
+    signOut, 
+    onAuthStateChanged 
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+  import { 
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    where,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
+    authDomain: "budgetly-6a559.firebaseapp.com",
+    projectId: "budgetly-6a559",
+    appId: "1:682783929618:web:d2ab6e0f01786e6980efcb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentUser;
+
+  // Protect dashboard
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    } else {
+      currentUser = user;
+      loadTransactions();
+    }
+  });
+
+  // Logout
+  window.logout = async function() {
+    await signOut(auth);
+    window.location.href = "login.html";
+  };
+
+  // Add Transaction
+  const form = document.getElementById("transactionForm");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const description = document.getElementById("description").value;
+    const amount = parseFloat(document.getElementById("amount").value);
+    const type = document.getElementById("type").value;
+
+    await addDoc(collection(db, "transactions"), {
+      uid: currentUser.uid,
+      description,
+      amount,
+      type,
+      createdAt: new Date()
+    });
+
+    form.reset();
+    loadTransactions();
+  });
+
+  // Load Transactions
+  async function loadTransactions() {
+    const list = document.getElementById("transactionList");
+    list.innerHTML = "";
+
+    const q = query(
+      collection(db, "transactions"),
+      where("uid", "==", currentUser.uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+
+      const li = document.createElement("li");
+      li.className = "border border-black p-3 rounded-lg flex justify-between";
+
+      li.innerHTML = `
+        <span>${data.description} (${data.type})</span>
+        <span>₱${data.amount}</span>
+      `;
+
+      list.appendChild(li);
+    });
+  }
+</script>
+
+</body>
+</html>

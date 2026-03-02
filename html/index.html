@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Budgetly</title>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white text-black">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-black">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Budgetly</h1>
+      <div>
+        <!-- Login -->
+        <a href="login.html" class="text-black hover:opacity-70 mr-6">
+          Login
+        </a>
+
+        <!-- Sign Up -->
+        <a href="signup.html" class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+          Sign Up
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="flex items-center justify-center min-h-screen">
+    <div class="text-center px-6">
+
+      <h2 class="text-4xl font-bold mb-6">
+        Smart Expense Tracking with Behavioral Insights
+      </h2>
+
+      <p class="text-gray-600 text-lg mb-8 max-w-xl mx-auto">
+        Track your income and expenses effortlessly.
+        Get intelligent insights into your spending habits and stay in control.
+      </p>
+
+      <div class="space-x-4">
+
+        <!-- Get Started -->
+        <a href="signup.html" class="bg-black text-white px-6 py-3 rounded-lg shadow hover:bg-gray-800">
+          Get Started
+        </a>
+
+        <!-- Learn More (scroll to features section) -->
+        <a href="#features" class="border border-black text-black px-6 py-3 rounded-lg hover:bg-black hover:text-white transition">
+          Learn More
+        </a>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="bg-white py-16 border-t border-black">
+    <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8 text-center">
+
+      <div class="border border-black p-6 rounded-xl">
+        <h3 class="text-xl font-semibold mb-3">Track Expenses</h3>
+        <p class="text-gray-600">
+          Log your income and expenses with a clean interface.
+        </p>
+      </div>
+
+      <div class="border border-black p-6 rounded-xl">
+        <h3 class="text-xl font-semibold mb-3">Set Budgets</h3>
+        <p class="text-gray-600">
+          Monitor spending with category-based limits.
+        </p>
+      </div>
+
+      <div class="border border-black p-6 rounded-xl">
+        <h3 class="text-xl font-semibold mb-3">Behavioral Insights</h3>
+        <p class="text-gray-600">
+          Understand your spending patterns intelligently.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-black text-center py-6 text-gray-600">
+    <p>© 2026 Budgetly. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>

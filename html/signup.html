@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up - Budgetly</title>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white text-black flex items-center justify-center min-h-screen">
+
+<!-- Back Button -->
+<div class="absolute top-6 left-6">
+  <a href="index.html" class="border border-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition">
+    ← Back
+  </a>
+</div>
+
+  <div class="w-full max-w-md p-8 border border-black rounded-xl">
+
+    <h1 class="text-2xl font-bold mb-6 text-center">Create Your Account</h1>
+
+    <form id="signupForm">
+      
+      <!-- Email -->
+      <div class="mb-4">
+        <label class="block mb-2 font-medium">Email</label>
+        <input
+          type="email"
+          id="email"
+          placeholder="Enter your email"
+          class="w-full border border-black p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+          required
+        >
+      </div>
+
+      <!-- Password -->
+      <div class="mb-6">
+        <label class="block mb-2 font-medium">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="Enter your password"
+          class="w-full border border-black p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+          required
+        >
+      </div>
+
+      <!-- Sign Up Button -->
+      <button
+        type="submit"
+        class="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
+      >
+        Sign Up
+      </button>
+    </form>
+
+    <p class="text-center mt-6 text-gray-600">
+      Already have an account?
+      <a href="login.html" class="underline hover:text-black">Login</a>
+    </p>
+
+  </div>
+
+  <!-- Firebase Signup Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
+      authDomain: "budgetly-6a559.firebaseapp.com",
+      projectId: "budgetly-6a559",
+      appId: "1:682783929618:web:d2ab6e0f01786e6980efcb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById("signupForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Account created successfully!");
+        window.location.href = "login.html";
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  </script>
+
+</body>
+</html>
