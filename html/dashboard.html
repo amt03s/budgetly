@@ -57,17 +57,17 @@
 
         <div class="border border-black p-6 rounded-xl">
           <h3 class="font-semibold mb-2">Total Income</h3>
-          <p class="text-2xl font-bold">₱0.00</p>
+          <p id="totalIncome" class="text-2xl font-bold">₱0.00</p>
         </div>
 
         <div class="border border-black p-6 rounded-xl">
           <h3 class="font-semibold mb-2">Total Expenses</h3>
-          <p class="text-2xl font-bold">₱0.00</p>
+          <p id="totalExpenses" class="text-2xl font-bold">₱0.00</p>
         </div>
 
         <div class="border border-black p-6 rounded-xl">
           <h3 class="font-semibold mb-2">Remaining Balance</h3>
-          <p class="text-2xl font-bold">₱0.00</p>
+          <p id="remainingBalance" class="text-2xl font-bold">₱0.00</p>
         </div>
 
       </div>
@@ -167,8 +167,8 @@
 
       <div>
         <h3 class="text-xl font-semibold mb-4">Transaction List</h3>
-        <div class="border border-black p-4 rounded-lg">
-          Transactions will appear here.
+        <div id="transactionList"
+          class="border border-black p-4 rounded-lg space-y-3">
         </div>
       </div>
 
@@ -183,9 +183,14 @@
       <div class="border border-black p-6 rounded-xl mb-8">
         <h3 class="text-xl font-semibold mb-4">Add Wallet</h3>
 
-        <form class="flex gap-4">
-          <input type="text" placeholder="Wallet Name"
-            class="border border-black p-3 rounded-lg flex-1">
+        <form id="walletForm" class="flex gap-4">
+          <input 
+            type="text" 
+            id="walletName"
+            placeholder="Wallet Name"
+            class="border border-black p-3 rounded-lg flex-1"
+            required
+          >
 
           <button type="submit"
             class="bg-black text-white px-6 rounded-lg">
@@ -194,12 +199,7 @@
         </form>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-6">
-
-        <div class="border border-black p-6 rounded-xl">
-          <h3 class="font-semibold">Cash</h3>
-          <p class="text-xl mt-2">₱0.00</p>
-        </div>
+       <div id="walletCards" class="grid md:grid-cols-3 gap-6"></div>
 
       </div>
 
@@ -237,6 +237,252 @@
       customInput.value = "";
     }
   }
+</script>
+
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  where
+}
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import {
+  getAuth,
+  onAuthStateChanged
+}
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
+  authDomain: "budgetly-6a559.firebaseapp.com",
+  projectId: "budgetly-6a559",
+  appId: "1:682783929618:web:d2ab6e0f01786e6980efcb"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const form = document.getElementById("transactionForm");
+const transactionList = document.getElementById("transactionList");
+const walletForm = document.getElementById("walletForm");
+const walletNameInput = document.getElementById("walletName");
+const walletSelect = document.getElementById("walletSelect");
+const walletCards = document.getElementById("walletCards");
+
+const totalIncomeEl = document.getElementById("totalIncome");
+const totalExpensesEl = document.getElementById("totalExpenses");
+const remainingBalanceEl = document.getElementById("remainingBalance");
+
+
+// 🔐 Protect dashboard + load transactions
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loadTransactions(user.uid);
+    loadWallets(user.uid);
+  } else {
+    window.location.href = "login.html";
+  }
+});
+
+
+// ➕ Add Transaction
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!auth.currentUser) {
+    alert("User not logged in.");
+    return;
+  }
+
+  const wallet = document.getElementById("walletSelect").value;
+  const description = document.getElementById("description").value;
+  const amount = parseFloat(document.getElementById("amount").value);
+  const type = document.getElementById("type").value;
+  const categorySelect = document.getElementById("category").value;
+  const customCategory = document.getElementById("customCategory").value;
+
+  const finalCategory =
+    categorySelect === "Other"
+      ? customCategory
+      : categorySelect;
+
+  try {
+    await addDoc(collection(db, "transactions"), {
+      userId: auth.currentUser.uid,
+      wallet,
+      description,
+      amount,
+      type,
+      category: finalCategory,
+      createdAt: new Date()
+    });
+
+    form.reset();
+    document.getElementById("customCategory").classList.add("invisible");
+
+  } catch (error) {
+    console.error("Error adding transaction:", error);
+  }
+});
+
+
+// Load Transactions Live
+function loadTransactions(uid) {
+
+  const q = query(
+    collection(db, "transactions"),
+    where("userId", "==", uid)
+  );
+
+  onSnapshot(q, (snapshot) => {
+
+  transactionList.innerHTML = "";
+
+  let totalIncome = 0;
+  let totalExpenses = 0;
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+
+    if (data.type === "income") {
+      totalIncome += data.amount;
+    } else {
+      totalExpenses += data.amount;
+    }
+
+    const div = document.createElement("div");
+    div.className =
+      "flex justify-between border-b border-black pb-2";
+
+    div.innerHTML = `
+      <div>
+        <p class="font-semibold">${data.description}</p>
+        <p class="text-sm text-gray-600">
+          ${data.category} • ${data.wallet}
+        </p>
+      </div>
+      <p class="font-bold ${
+        data.type === "income"
+          ? "text-green-600"
+          : "text-red-600"
+      }">
+        ₱${data.amount.toFixed(2)}
+      </p>
+    `;
+
+    transactionList.appendChild(div);
+  });
+
+  // -------- UPDATE OVERVIEW --------
+  const remaining = totalIncome - totalExpenses;
+
+  totalIncomeEl.textContent = `₱${totalIncome.toFixed(2)}`;
+  totalExpensesEl.textContent = `₱${totalExpenses.toFixed(2)}`;
+  remainingBalanceEl.textContent = `₱${remaining.toFixed(2)}`;
+
+});
+}
+
+function loadWallets(uid) {
+
+  const walletQuery = query(
+    collection(db, "wallets"),
+    where("userId", "==", uid)
+  );
+
+  const transactionQuery = query(
+    collection(db, "transactions"),
+    where("userId", "==", uid)
+  );
+
+  onSnapshot(walletQuery, (walletSnapshot) => {
+
+    onSnapshot(transactionQuery, (transactionSnapshot) => {
+
+      // Clear dropdown
+      walletSelect.innerHTML = `
+        <option value="" disabled selected hidden>
+          Select Wallet
+        </option>
+      `;
+
+      // Clear wallet cards
+      walletCards.innerHTML = "";
+
+      walletSnapshot.forEach((walletDoc) => {
+
+        const walletData = walletDoc.data();
+        const walletName = walletData.name;
+
+        // -------- Calculate Balance --------
+        let balance = 0;
+
+        transactionSnapshot.forEach((txDoc) => {
+          const tx = txDoc.data();
+
+          if (tx.wallet === walletName) {
+            if (tx.type === "income") {
+              balance += tx.amount;
+            } else {
+              balance -= tx.amount;
+            }
+          }
+        });
+
+        // -------- Add to Dropdown --------
+        const option = document.createElement("option");
+        option.value = walletName;
+        option.textContent = walletName;
+        walletSelect.appendChild(option);
+
+        // -------- Create Wallet Card --------
+        const card = document.createElement("div");
+        card.className = "border border-black p-6 rounded-xl";
+
+        card.innerHTML = `
+          <h3 class="font-semibold">${walletName}</h3>
+          <p class="text-xl mt-2 ${balance >= 0 ? "text-green-600" : "text-red-600"}">
+            ₱${balance.toFixed(2)}
+          </p>
+        `;
+
+        walletCards.appendChild(card);
+
+      });
+
+    });
+
+  });
+}
+
+walletForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (!auth.currentUser) return;
+
+  try {
+    await addDoc(collection(db, "wallets"), {
+      userId: auth.currentUser.uid,
+      name: walletNameInput.value,
+      createdAt: new Date()
+    });
+
+    walletForm.reset();
+
+  } catch (error) {
+    console.error("Error adding wallet:", error);
+  }
+});
+
 </script>
 
 </body>
