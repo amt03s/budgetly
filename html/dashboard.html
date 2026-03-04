@@ -4,11 +4,144 @@
   <meta charset="UTF-8">
   <title>Dashboard - Budgetly</title>
 
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <script>
     tailwind.config = { darkMode: 'class' }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+
+  <div class="bg-white border border-black p-8 rounded-2xl w-[500px] shadow-xl">
+
+    <h2 class="text-2xl font-bold mb-6 text-center">Edit Transaction</h2>
+
+      <form id="editForm" class="space-y-4">
+
+      <!-- WALLET -->
+      <select id="editWallet"
+        class="w-full border border-black p-3 rounded-lg" required>
+      </select>
+
+      <!-- DESCRIPTION -->
+      <input type="text" id="editDescription"
+        class="w-full border border-black p-3 rounded-lg"
+        placeholder="Description" required>
+
+      <!-- AMOUNT -->
+      <input type="number" id="editAmount"
+        class="w-full border border-black p-3 rounded-lg"
+        placeholder="Amount" required>
+
+      <!-- TYPE -->
+      <select id="editType"
+        class="w-full border border-black p-3 rounded-lg">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+
+      <!-- DATE -->
+      <input type="date" id="editDate"
+        class="w-full border border-black p-3 rounded-lg" required>
+
+      <!-- CATEGORY -->
+      <select id="editCategory"
+        class="w-full border border-black p-3 rounded-lg"
+        onchange="checkEditCategory()">
+        <option value="Food">Food</option>
+        <option value="Transport">Transport</option>
+        <option value="Bills">Bills</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Salary">Salary</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <!-- HIDDEN CUSTOM CATEGORY -->
+      <input
+        type="text"
+        id="editCustomCategory"
+        placeholder="Custom Category"
+        class="w-full border border-black p-3 rounded-lg invisible"
+      >
+
+      <div class="flex justify-between mt-6">
+        <button type="button"
+          onclick="closeModal()"
+          class="px-4 py-2 border border-black rounded-lg hover:bg-black hover:text-white transition">
+          Cancel
+        </button>
+
+        <button type="submit"
+          class="px-4 py-2 bg-black text-white rounded-lg hover:opacity-80 transition">
+          Update
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- EDIT WALLET MODAL -->
+<div id="editWalletModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+
+  <div class="bg-white border border-black p-8 rounded-2xl w-[400px] shadow-xl">
+
+    <h2 class="text-xl font-bold mb-6 text-center">Edit Wallet</h2>
+
+    <input
+      type="text"
+      id="editWalletNameInput"
+      class="w-full border border-black p-3 rounded-lg mb-6"
+      placeholder="Wallet Name"
+    >
+
+    <div class="flex justify-between">
+      <button
+        onclick="closeEditWalletModal()"
+        class="px-4 py-2 border border-black rounded-lg hover:bg-black hover:text-white transition">
+        Cancel
+      </button>
+
+      <button
+        onclick="confirmEditWallet()"
+        class="px-4 py-2 bg-black text-white rounded-lg hover:opacity-80 transition">
+        Save
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- DELETE WALLET MODAL -->
+<div id="deleteWalletModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+
+  <div class="bg-white border border-black p-8 rounded-2xl w-[400px] shadow-xl text-center">
+
+    <h2 class="text-xl font-bold mb-6">Delete Wallet?</h2>
+
+    <p class="mb-6 text-gray-600">
+      This will permanently remove the wallet.
+    </p>
+
+    <div class="flex justify-between">
+      <button
+        onclick="closeDeleteWalletModal()"
+        class="px-4 py-2 border border-black rounded-lg hover:bg-black hover:text-white transition">
+        Cancel
+      </button>
+
+      <button
+        onclick="confirmDeleteWallet()"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-80 transition">
+        Delete
+      </button>
+    </div>
+
+  </div>
+</div>
 
 <body class="bg-white text-black min-h-screen flex">
 
@@ -24,15 +157,18 @@
         Overview
       </button>
 
-      <button onclick="showSection('transactions')" 
+      <button onclick="goToTransactions()"
         class="w-full text-left px-4 py-2 rounded hover:bg-black hover:text-white transition">
         Transactions
       </button>
 
-      <button onclick="showSection('wallets')" 
+      <button onclick="toggleWalletDropdown()"
         class="w-full text-left px-4 py-2 rounded hover:bg-black hover:text-white transition">
         Wallets
       </button>
+
+      <div id="walletDropdown" class="mt-2 space-y-2 pl-6 hidden">
+  </div>
 
     </nav>
 
@@ -90,45 +226,51 @@
       <div class="border border-black p-6 rounded-xl mb-8">
         <h3 class="text-xl font-semibold mb-4">Add Transaction</h3>
 
-        <form id="transactionForm" class="grid md:grid-cols-4 gap-4">
+          <form id="transactionForm" class="space-y-4">
 
-          <!-- Wallet Dropdown -->
-          <select id="walletSelect"
-            class="border border-black p-3 rounded-lg" required>
+          <!-- ROW 1: Wallet + Description -->
+          <div class="grid md:grid-cols-2 gap-4">
+            <select id="walletSelect"
+              class="border border-black p-3 rounded-lg" required>
 
-            <option value="" disabled selected hidden>
-              Select Wallet
-            </option>
+              <option value="" disabled selected hidden>
+                Select Wallet
+              </option>
+            </select>
 
-            <option value="">To add</option>
-          </select>
+            <input type="text" id="description"
+              placeholder="Description"
+              class="border border-black p-3 rounded-lg" required>
+          </div>
 
-          <!-- Description -->
-          <input type="text" id="description"
-            placeholder="Description"
-            class="border border-black p-3 rounded-lg" required>
+          <!-- ROW 2: Amount + Type + Date -->
+          <div class="grid md:grid-cols-3 gap-4">
+            <input type="number" id="amount"
+              placeholder="Amount"
+              class="border border-black p-3 rounded-lg" required>
 
-          <!-- Amount -->
-          <input type="number" id="amount"
-            placeholder="Amount"
-            class="border border-black p-3 rounded-lg" required>
+            <select id="type"
+              class="border border-black p-3 rounded-lg" required>
 
-          <!-- Type -->
-          <select id="type" 
-            class="border border-black p-3 rounded-lg" required>
+              <option value="" disabled selected hidden>
+                Type
+              </option>
 
-            <option value="" disabled selected hidden>
-              Type
-            </option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
 
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-          </select>
+            <input
+              type="date"
+              id="transactionDate"
+              class="border border-black p-3 rounded-lg"
+              required
+            >
+          </div>
 
-          <!-- Category -->
-          <div class="md:col-span-4 grid grid-cols-2 gap-4">
+          <!-- ROW 3: Category + Custom -->
+          <div class="grid md:grid-cols-2 gap-4">
 
-            <!-- Category Dropdown -->
             <select id="category"
               class="border border-black p-3 rounded-lg"
               onchange="checkCategory()"
@@ -144,25 +286,38 @@
               <option value="Shopping">Shopping</option>
               <option value="Salary">Salary</option>
               <option value="Other">Other</option>
-
             </select>
 
-            <!-- Custom Category Input -->
             <input
               type="text"
               id="customCategory"
               placeholder="Custom Category"
               class="border border-black p-3 rounded-lg invisible"
             >
-
           </div>
 
+          <!-- ROW 4: Button -->
           <button type="submit"
-            class="bg-black text-white py-3 rounded-lg md:col-span-4">
+            class="bg-black text-white py-3 rounded-lg w-full">
             Add Transaction
           </button>
 
         </form> 
+      </div>
+
+      <div class="flex gap-4 mb-4">
+        <button onclick="setFilter('all', this)" class="filter-btn underline font-semibold">
+          All
+        </button>
+        <button onclick="setFilter('week', this)" class="filter-btn">
+          Past Week
+        </button>
+        <button onclick="setFilter('month', this)" class="filter-btn">
+          Past Month
+        </button>
+        <button onclick="setFilter('year', this)" class="filter-btn">
+          Past Year
+        </button>
       </div>
 
       <div>
@@ -201,6 +356,38 @@
 
        <div id="walletCards" class="grid md:grid-cols-3 gap-6"></div>
 
+    </div>
+
+    <!-- SINGLE WALLET VIEW SECTION -->
+    <div id="singleWalletSection" class="hidden">
+
+      <h2 id="singleWalletTitle" class="text-3xl font-bold mb-4"></h2>
+
+      <div class="border border-black p-6 rounded-xl mb-8">
+        <h3 class="font-semibold mb-2">Wallet Balance</h3>
+        <p id="singleWalletBalance" class="text-2xl font-bold">₱0.00</p>
+      </div>
+
+      <div class="flex gap-4 mb-4">
+        <button onclick="setFilter('all', this)" class="filter-btn underline font-semibold">
+          All
+        </button>
+        <button onclick="setFilter('week', this)" class="filter-btn">
+          Past Week
+        </button>
+        <button onclick="setFilter('month', this)" class="filter-btn">
+          Past Month
+        </button>
+        <button onclick="setFilter('year', this)" class="filter-btn">
+          Past Year
+        </button>
+      </div>
+
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Transactions</h3>
+        <div id="singleWalletTransactions"
+          class="border border-black p-4 rounded-lg space-y-3">
+        </div>
       </div>
 
     </div>
@@ -209,19 +396,6 @@
 
 
   <!-- SECTION SWITCHING SCRIPT -->
-  <script>
-    function showSection(section) {
-      document.getElementById("overviewSection").classList.add("hidden");
-      document.getElementById("transactionsSection").classList.add("hidden");
-      document.getElementById("walletsSection").classList.add("hidden");
-
-      document.getElementById(section + "Section").classList.remove("hidden");
-    }
-
-    function logout() {
-      window.location.href = "login.html";
-    }
-  </script>
 
 <script>
   function checkCategory() {
@@ -239,6 +413,7 @@
   }
 </script>
 
+
 <script type="module">
 import { initializeApp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -249,9 +424,16 @@ import {
   addDoc,
   onSnapshot,
   query,
-  where
+  where,
+  deleteDoc,
+  doc,
+  updateDoc,
+  writeBatch,
+  getDocs,
+  orderBy, 
+  Timestamp
 }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {
   getAuth,
@@ -282,8 +464,38 @@ const totalIncomeEl = document.getElementById("totalIncome");
 const totalExpensesEl = document.getElementById("totalExpenses");
 const remainingBalanceEl = document.getElementById("remainingBalance");
 
+// let editId = null;
+let modalEditId = null;
 
-// 🔐 Protect dashboard + load transactions
+let selectedWalletFilter = null;
+
+let activeWalletItem = null;
+
+let walletToEditId = null;
+let walletToEditName = null;
+let walletToDeleteId = null;
+
+let currentFilter = "all";
+let currentWallet = null;
+
+let unsubscribeTransactions = null;
+let unsubscribeSingleWallet = null;
+
+const editModal = document.getElementById("editModal");
+
+window.closeModal = function() {
+  editModal.classList.add("hidden");
+};
+
+const transactionDateInput = document.getElementById("transactionDate");
+
+// Set default date to today
+const today = new Date().toISOString().split("T")[0];
+transactionDateInput.value = today;
+transactionDateInput.max = today;
+
+
+// Protect dashboard + load transactions
 onAuthStateChanged(auth, (user) => {
   if (user) {
     loadTransactions(user.uid);
@@ -309,6 +521,7 @@ form.addEventListener("submit", async (e) => {
   const type = document.getElementById("type").value;
   const categorySelect = document.getElementById("category").value;
   const customCategory = document.getElementById("customCategory").value;
+  const selectedDate = document.getElementById("transactionDate").value;
 
   const finalCategory =
     categorySelect === "Other"
@@ -316,6 +529,7 @@ form.addEventListener("submit", async (e) => {
       : categorySelect;
 
   try {
+
     await addDoc(collection(db, "transactions"), {
       userId: auth.currentUser.uid,
       wallet,
@@ -323,6 +537,7 @@ form.addEventListener("submit", async (e) => {
       amount,
       type,
       category: finalCategory,
+      date: Timestamp.fromDate(new Date(selectedDate)),
       createdAt: new Date()
     });
 
@@ -330,66 +545,163 @@ form.addEventListener("submit", async (e) => {
     document.getElementById("customCategory").classList.add("invisible");
 
   } catch (error) {
-    console.error("Error adding transaction:", error);
+    console.error("Error saving transaction:", error);
   }
 });
 
+const editForm = document.getElementById("editForm");
+
+editForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const categorySelect = document.getElementById("editCategory").value;
+  const customCategory = document.getElementById("editCustomCategory").value;
+
+  const finalCategory =
+    categorySelect === "Other"
+      ? customCategory
+      : categorySelect;
+
+  try {
+    await updateDoc(doc(db, "transactions", modalEditId), {
+      description: document.getElementById("editDescription").value,
+      amount: parseFloat(document.getElementById("editAmount").value),
+      type: document.getElementById("editType").value,
+      wallet: document.getElementById("editWallet").value,
+      category: finalCategory,
+      date: Timestamp.fromDate(
+        new Date(document.getElementById("editDate").value)
+)
+    });
+
+    closeModal();
+
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+  }
+});
+
+function formatCurrency(amount) {
+  return amount.toLocaleString("en-PH", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
 
 // Load Transactions Live
 function loadTransactions(uid) {
 
-  const q = query(
-    collection(db, "transactions"),
-    where("userId", "==", uid)
-  );
+  if (unsubscribeTransactions) {
+    unsubscribeTransactions();
+  }
+  
+  let constraints = [
+    where("userId", "==", uid),
+    orderBy("date", "desc")
+  ];
 
-  onSnapshot(q, (snapshot) => {
+  // Apply wallet filter
+  if (currentWallet) {
+    constraints.push(where("wallet", "==", currentWallet));
+  }
 
-  transactionList.innerHTML = "";
+  // Apply date filter
+  const today = new Date();
+  let startDate = null;
 
-  let totalIncome = 0;
-  let totalExpenses = 0;
+  if (currentFilter === "week") {
+    startDate = new Date();
+    startDate.setDate(today.getDate() - 7);
+  }
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
+  if (currentFilter === "month") {
+    startDate = new Date();
+    startDate.setMonth(today.getMonth() - 1);
+  }
 
-    if (data.type === "income") {
-      totalIncome += data.amount;
-    } else {
-      totalExpenses += data.amount;
-    }
+  if (currentFilter === "year") {
+    startDate = new Date();
+    startDate.setFullYear(today.getFullYear() - 1);
+  }
 
-    const div = document.createElement("div");
-    div.className =
-      "flex justify-between border-b border-black pb-2";
+  if (startDate) {
+    constraints.push(
+      where("date", ">=", Timestamp.fromDate(startDate))
+    );
+  }
 
-    div.innerHTML = `
-      <div>
-        <p class="font-semibold">${data.description}</p>
-        <p class="text-sm text-gray-600">
-          ${data.category} • ${data.wallet}
-        </p>
-      </div>
-      <p class="font-bold ${
-        data.type === "income"
-          ? "text-green-600"
-          : "text-red-600"
-      }">
-        ₱${data.amount.toFixed(2)}
-      </p>
-    `;
+  const q = query(collection(db, "transactions"), ...constraints);
 
-    transactionList.appendChild(div);
+  unsubscribeTransactions = onSnapshot(q, (snapshot) => {
+
+    transactionList.innerHTML = "";
+
+    let totalIncome = 0;
+    let totalExpenses = 0;
+
+    snapshot.forEach((docSnapshot) => {
+
+      const data = docSnapshot.data();
+      const docId = docSnapshot.id;
+
+      if (data.type === "income") {
+        totalIncome += data.amount;
+      } else {
+        totalExpenses += data.amount;
+      }
+
+      const div = document.createElement("div");
+      div.className =
+        "flex justify-between border-b border-black pb-2";
+
+      div.innerHTML = `
+        <div>
+          <p class="font-semibold">${data.description}</p>
+          <p class="text-sm text-gray-600">
+            ${data.category} • ${data.wallet} • ${
+        data.date
+        ? (typeof data.date.toDate === "function"
+            ? data.date.toDate().toLocaleDateString()
+            : new Date(data.date).toLocaleDateString())
+        : ""
+          }
+          </p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <p class="font-bold ${
+            data.type === "income"
+              ? "text-green-600"
+              : "text-red-600"
+          }">
+            ₱${formatCurrency(data.amount)}
+          </p>
+
+          <button
+            class="text-blue-600 font-bold"
+            onclick="openEditModal('${docId}', '${data.description}', ${data.amount}, '${data.type}', '${data.category}', '${data.wallet}', '${data.date}')">
+            Edit
+          </button>
+
+          <button
+            class="text-red-600 font-bold"
+            onclick="deleteTransaction('${docId}')">
+            ✕
+          </button>
+        </div>
+      `;
+
+      transactionList.appendChild(div);
+    });
+
+    // -------- UPDATE OVERVIEW --------
+    const remaining = totalIncome - totalExpenses;
+
+    totalIncomeEl.textContent = `₱${formatCurrency(totalIncome)}`;
+    totalExpensesEl.textContent = `₱${formatCurrency(totalExpenses)}`;
+    remainingBalanceEl.textContent = `₱${formatCurrency(remaining)}`;
+
   });
-
-  // -------- UPDATE OVERVIEW --------
-  const remaining = totalIncome - totalExpenses;
-
-  totalIncomeEl.textContent = `₱${totalIncome.toFixed(2)}`;
-  totalExpensesEl.textContent = `₱${totalExpenses.toFixed(2)}`;
-  remainingBalanceEl.textContent = `₱${remaining.toFixed(2)}`;
-
-});
 }
 
 function loadWallets(uid) {
@@ -418,48 +730,207 @@ function loadWallets(uid) {
       // Clear wallet cards
       walletCards.innerHTML = "";
 
-      walletSnapshot.forEach((walletDoc) => {
+      const walletArray = [];
 
-        const walletData = walletDoc.data();
-        const walletName = walletData.name;
+    walletSnapshot.forEach((walletDoc) => {
 
-        // -------- Calculate Balance --------
-        let balance = 0;
+      const walletData = walletDoc.data();
+      const walletName = walletData.name;
 
-        transactionSnapshot.forEach((txDoc) => {
-          const tx = txDoc.data();
+      // Save for sidebar
+      walletArray.push({ name: walletName });
 
-          if (tx.wallet === walletName) {
-            if (tx.type === "income") {
-              balance += tx.amount;
-            } else {
-              balance -= tx.amount;
-            }
+      // -------- Calculate Balance --------
+      let balance = 0;
+
+      transactionSnapshot.forEach((txDoc) => {
+        const tx = txDoc.data();
+
+        if (tx.wallet === walletName) {
+          if (tx.type === "income") {
+            balance += tx.amount;
+          } else {
+            balance -= tx.amount;
           }
-        });
-
-        // -------- Add to Dropdown --------
-        const option = document.createElement("option");
-        option.value = walletName;
-        option.textContent = walletName;
-        walletSelect.appendChild(option);
-
-        // -------- Create Wallet Card --------
-        const card = document.createElement("div");
-        card.className = "border border-black p-6 rounded-xl";
-
-        card.innerHTML = `
-          <h3 class="font-semibold">${walletName}</h3>
-          <p class="text-xl mt-2 ${balance >= 0 ? "text-green-600" : "text-red-600"}">
-            ₱${balance.toFixed(2)}
-          </p>
-        `;
-
-        walletCards.appendChild(card);
-
+        }
       });
 
+      // -------- Add to Transaction Form Dropdown --------
+      const option = document.createElement("option");
+      option.value = walletName;
+      option.textContent = walletName;
+      walletSelect.appendChild(option);
+
+      // -------- Create Wallet Card --------
+      const card = document.createElement("div");
+      card.className = "border border-black p-6 rounded-xl";
+
+      card.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold">${walletName}</h3>
+            <p class="text-xl mt-2 ${balance >= 0 ? "text-green-600" : "text-red-600"}">
+              ₱${formatCurrency(balance)}
+            </p>
+          </div>
+
+          <div class="flex gap-3">
+            <button 
+              class="text-blue-600 font-semibold"
+              onclick="editWallet('${walletDoc.id}', '${walletName}')">
+              Edit
+            </button>
+
+            <button 
+              class="text-red-600 font-semibold"
+              onclick="deleteWallet('${walletDoc.id}')">
+              ✕
+            </button>
+          </div>
+        </div>
+      `;
+
+      walletCards.appendChild(card);
+
     });
+
+    populateWalletSidebar(walletArray);
+
+    });
+
+  });
+}
+
+function populateWalletSidebar(wallets) {
+
+  const dropdown = document.getElementById("walletDropdown");
+  dropdown.innerHTML = "";
+
+  // -------- INDIVIDUAL WALLETS --------
+  wallets.forEach(wallet => {
+
+    const item = document.createElement("div");
+    item.textContent = wallet.name;
+    item.className = "cursor-pointer pl-8";
+
+    item.onclick = () => {
+
+      currentWallet = wallet.name;
+      currentFilter = "all";
+
+      document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.remove("underline", "font-semibold");
+      });
+
+      document.querySelector(".filter-btn").classList.add("underline", "font-semibold");
+
+      if (activeWalletItem) {
+        activeWalletItem.classList.remove("underline", "font-semibold");
+      }
+
+      item.classList.add("underline", "font-semibold");
+      activeWalletItem = item;
+
+      showSingleWallet(auth.currentUser.uid, wallet.name);
+    };
+
+        dropdown.appendChild(item);
+      });
+    }
+
+function showSingleWallet(uid, walletName) {
+
+  if (unsubscribeSingleWallet) {
+  unsubscribeSingleWallet();
+}
+
+  showSection("singleWallet");
+
+  const title = document.getElementById("singleWalletTitle");
+  const balanceEl = document.getElementById("singleWalletBalance");
+  const transactionContainer = document.getElementById("singleWalletTransactions");
+
+  title.textContent = walletName;
+  transactionContainer.innerHTML = "";
+
+  let constraints = [
+    where("userId", "==", uid),
+    where("wallet", "==", walletName),
+    orderBy("date", "desc")
+  ];
+
+  // APPLY DATE FILTER
+  const today = new Date();
+  let startDate = null;
+
+  if (currentFilter === "week") {
+    startDate = new Date();
+    startDate.setDate(today.getDate() - 7);
+  }
+
+  if (currentFilter === "month") {
+    startDate = new Date();
+    startDate.setMonth(today.getMonth() - 1);
+  }
+
+  if (currentFilter === "year") {
+    startDate = new Date();
+    startDate.setFullYear(today.getFullYear() - 1);
+  }
+
+  if (startDate) {
+    constraints.push(
+      where("date", ">=", Timestamp.fromDate(startDate))
+    );
+  }
+
+  const q = query(collection(db, "transactions"), ...constraints);
+
+  unsubscribeSingleWallet = onSnapshot(q, (snapshot) => {
+
+    let balance = 0;
+    transactionContainer.innerHTML = "";
+
+    snapshot.forEach((docSnapshot) => {
+
+      const data = docSnapshot.data();
+
+      if (data.type === "income") {
+        balance += data.amount;
+      } else {
+        balance -= data.amount;
+      }
+
+      const div = document.createElement("div");
+      div.className = "flex justify-between border-b border-black pb-2";
+
+      div.innerHTML = `
+        <div>
+          <p class="font-semibold">${data.description}</p>
+          <p class="text-sm text-gray-600">
+            ${data.category} • ${
+              data.date
+                ? (typeof data.date.toDate === "function"
+                    ? data.date.toDate().toLocaleDateString()
+                    : new Date(data.date).toLocaleDateString())
+                : ""
+            }
+          </p>
+        </div>
+
+        <p class="font-bold ${
+          data.type === "income"
+            ? "text-green-600"
+            : "text-red-600"
+        }">
+          ₱${formatCurrency(data.amount)}
+        </p>
+      `;
+
+      transactionContainer.appendChild(div);
+    });
+
+    balanceEl.textContent = `₱${formatCurrency(balance)}`;
 
   });
 }
@@ -482,6 +953,201 @@ walletForm.addEventListener("submit", async (e) => {
     console.error("Error adding wallet:", error);
   }
 });
+
+window.deleteTransaction = async function(id) {
+
+  const confirmDelete = confirm("Delete this transaction?");
+  if (!confirmDelete) return;
+
+  try {
+    await deleteDoc(doc(db, "transactions", id));
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+  }
+};
+
+window.openEditModal = function(id, description, amount, type, category, wallet, date) {
+
+  modalEditId = id;
+
+  document.getElementById("editDescription").value = description;
+  document.getElementById("editAmount").value = amount;
+  document.getElementById("editType").value = type;
+  document.getElementById("editDate").value = date;
+
+  // Copy wallet dropdown options
+  const editWallet = document.getElementById("editWallet");
+  editWallet.innerHTML = walletSelect.innerHTML;
+  editWallet.value = wallet;
+
+  document.getElementById("editCategory").value = category;
+
+  // Trigger category check
+  checkEditCategory();
+
+  editModal.classList.remove("hidden");
+};
+
+window.checkEditCategory = function() {
+  const category = document.getElementById("editCategory").value;
+  const customInput = document.getElementById("editCustomCategory");
+
+  if (category === "Other") {
+    customInput.classList.remove("invisible");
+    customInput.required = true;
+  } else {
+    customInput.classList.add("invisible");
+    customInput.required = false;
+    customInput.value = "";
+  }
+};
+
+window.toggleWalletDropdown = function() {
+
+  currentWallet = null;
+
+  const dropdown = document.getElementById("walletDropdown");
+
+  dropdown.classList.toggle("hidden");
+  showSection("wallets");
+
+  if (activeWalletItem) {
+    activeWalletItem.classList.remove("underline", "font-semibold");
+    activeWalletItem = null;
+  }
+};
+
+window.deleteWallet = function(id) {
+  walletToDeleteId = id;
+  document.getElementById("deleteWalletModal").classList.remove("hidden");
+};
+
+window.editWallet = function(id, currentName) {
+
+  walletToEditId = id;
+  walletToEditName = currentName;
+
+  document.getElementById("editWalletNameInput").value = currentName;
+
+  document.getElementById("editWalletModal").classList.remove("hidden");
+};
+
+window.confirmDeleteWallet = async function() {
+
+  try {
+    await deleteDoc(doc(db, "wallets", walletToDeleteId));
+    closeDeleteWalletModal();
+  } catch (error) {
+    console.error("Error deleting wallet:", error);
+  }
+};
+
+window.confirmEditWallet = async function() {
+
+  const newName = document.getElementById("editWalletNameInput").value.trim();
+  if (!newName) return;
+
+  // CLOSE MODAL IMMEDIATELY
+  closeEditWalletModal();
+
+  try {
+
+    await updateDoc(doc(db, "wallets", walletToEditId), {
+      name: newName
+    });
+
+    const q = query(
+      collection(db, "transactions"),
+      where("userId", "==", auth.currentUser.uid),
+      where("wallet", "==", walletToEditName)
+    );
+
+    const snapshot = await getDocs(q);
+    const batch = writeBatch(db);
+
+    snapshot.forEach((docSnap) => {
+      batch.update(doc(db, "transactions", docSnap.id), {
+        wallet: newName
+      });
+    });
+
+    await batch.commit();
+
+  } catch (error) {
+    console.error("Error updating wallet:", error);
+  }
+};
+
+window.closeEditWalletModal = function() {
+  document.getElementById("editWalletModal").classList.add("hidden");
+};
+
+window.closeDeleteWalletModal = function() {
+  document.getElementById("deleteWalletModal").classList.add("hidden");
+};
+
+window.setFilter = function(filter, button) {
+
+  currentFilter = filter;
+
+  // Remove underline from all buttons
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.classList.remove("underline", "font-semibold");
+  });
+
+  // Underline clicked button
+  button.classList.add("underline", "font-semibold");
+
+  if (currentWallet) {
+    // If inside single wallet view
+    showSingleWallet(auth.currentUser.uid, currentWallet);
+  } else {
+    // If inside normal transactions view
+    loadTransactions(auth.currentUser.uid);
+  }
+};
+
+window.goToTransactions = function() {
+  currentWallet = null;
+  showSection("transactions");
+  loadTransactions(auth.currentUser.uid);
+};
+
+window.showSection = function(section) {
+
+  if (section !== "transactions" && section !== "singleWallet") {
+  currentFilter = "all";
+
+  document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.classList.remove("underline", "font-semibold");
+  });
+
+  const firstFilterBtn = document.querySelector(".filter-btn");
+  if (firstFilterBtn) {
+    firstFilterBtn.classList.add("underline", "font-semibold");
+  }
+}
+
+  if (section !== "singleWallet") {
+    currentWallet = null;
+
+    if (activeWalletItem) {
+      activeWalletItem.classList.remove("underline", "font-semibold");
+      activeWalletItem = null;
+    }
+  }
+
+  document.getElementById("overviewSection").classList.add("hidden");
+  document.getElementById("transactionsSection").classList.add("hidden");
+  document.getElementById("walletsSection").classList.add("hidden");
+  document.getElementById("singleWalletSection").classList.add("hidden");
+
+  document.getElementById(section + "Section").classList.remove("hidden");
+};
+
+window.logout = function() {
+  window.location.href = "login.html";
+};
 
 </script>
 
