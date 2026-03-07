@@ -58,7 +58,15 @@
       >
         Login
       </button>
+
+      <button
+        id="googleLogin"
+        class="w-full mt-4 border border-black py-3 rounded-lg hover:bg-black hover:text-white transition">
+        Sign in with Google
+      </button>
     </form>
+
+    
 
     <!-- Sign Up Link -->
     <p class="text-center mt-6 text-gray-600">
@@ -70,8 +78,13 @@
 
   <!-- Firebase Script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { 
+    getAuth,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
@@ -99,6 +112,28 @@
         alert(error.message);
       }
     });
+
+
+  // GOOGLE LOGIN BUTTON
+  const googleBtn = document.getElementById("googleLogin");
+
+  googleBtn.addEventListener("click", async () => {
+
+    const provider = new GoogleAuthProvider();
+
+    try {
+
+      await signInWithPopup(auth, provider);
+      alert("Google login successful!");
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+
+      alert(error.message);
+
+    }
+
+  });
   </script>
 <script src="js/theme.js"></script>
 </body>

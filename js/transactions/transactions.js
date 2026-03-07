@@ -1,6 +1,8 @@
 import { db } from "../firebase.js";
 import { formatCurrency } from "../utils/format.js";
 
+let modalEditId = null;
+
 import {
   createIncomeExpenseChart,
   createCategoryChart,
@@ -156,11 +158,12 @@ function loadTransactions(uid, elements, state) {
             ₱${formatCurrency(data.amount)}
           </p>
 
-          <button
-            class="text-blue-600 font-bold"
-            onclick="openEditModal('${docId}', '${data.description}', ${data.amount}, '${data.type}', '${data.category}', '${data.wallet}', '${formattedDate}')">
-            Edit
-          </button>
+        <button
+          type="button"
+          class="text-blue-600 font-bold"
+          onclick="openEditModal('${docId}', '${data.description}', ${data.amount}, '${data.type}', '${data.category}', '${data.wallet}', '${formattedDate}')">
+          Edit
+        </button>
 
           <button
             class="text-red-600 font-bold"
@@ -202,7 +205,7 @@ async function deleteTransaction(id) {
 
 function openEditModal(id, description, amount, type, category, wallet, date) {
 
-  let modalEditId = id;
+  document.getElementById("editModal").dataset.id = id;
 
   document.getElementById("editDescription").value = description;
   document.getElementById("editAmount").value = amount;
@@ -215,7 +218,19 @@ function openEditModal(id, description, amount, type, category, wallet, date) {
   editWallet.innerHTML = walletSelect.innerHTML;
   editWallet.value = wallet;
 
-  document.getElementById("editCategory").value = category;
+  const categorySelect = document.getElementById("editCategory");
+  const customInput = document.getElementById("editCustomCategory");
+
+  const defaultCategories = ["Food","Transport","Bills","Shopping","Salary","Other"];
+
+  if (defaultCategories.includes(category)) {
+    categorySelect.value = category;
+    customInput.value = "";
+  } else {
+    categorySelect.value = "Other";
+    customInput.classList.remove("invisible");
+    customInput.value = category;
+  }
 
   checkEditCategory();
 
@@ -247,3 +262,4 @@ export {
 
 window.deleteTransaction = deleteTransaction;
 window.openEditModal = openEditModal;
+window.modalEditId = modalEditId;

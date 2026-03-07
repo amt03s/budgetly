@@ -130,7 +130,9 @@ editForm.addEventListener("submit", async (e) => {
       : categorySelect;
 
   try {
-    await updateDoc(doc(db, "transactions", modalEditId), {
+      const modalEditId = document.getElementById("editModal").dataset.id;
+
+      await updateDoc(doc(db, "transactions", modalEditId), {
       description: document.getElementById("editDescription").value,
       amount: parseFloat(document.getElementById("editAmount").value),
       type: document.getElementById("editType").value,
