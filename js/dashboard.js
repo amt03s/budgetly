@@ -224,3 +224,26 @@ window.logout = function() {
 window.showSection = showSection;
 
 export { showSection };
+
+import { onAuthStateChanged }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+onAuthStateChanged(auth, (user) => {
+
+  if (user) {
+
+    const name = user.displayName || "there";
+
+    const hour = new Date().getHours();
+    let greeting;
+
+    if (hour < 12) greeting = "Good morning";
+    else if (hour < 18) greeting = "Good afternoon";
+    else greeting = "Good evening";
+
+    document.getElementById("greetingText").textContent =
+      `${greeting}, ${name} 👋`;
+
+  }
+
+});

@@ -27,6 +27,18 @@
 
     <form id="signupForm">
       
+      <!-- NAME -->
+      <div class="mb-4">
+        <label class="block mb-2 font-medium">How do you like to be called?</label>
+        <input
+          type="text"
+          id="name"
+          placeholder="Enter your name"
+          class="w-full border border-black p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+          required
+        >
+      </div>
+
       <!-- Email -->
       <div class="mb-4">
         <label class="block mb-2 font-medium">Email</label>
@@ -69,36 +81,50 @@
 
   <!-- Firebase Signup Script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  updateProfile 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
-      authDomain: "budgetly-6a559.firebaseapp.com",
-      projectId: "budgetly-6a559",
-      appId: "1:682783929618:web:d2ab6e0f01786e6980efcb"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyDZEovu8hv6ms8dDiQN_GaXIf8BDM9kf5g",
+  authDomain: "budgetly-6a559.firebaseapp.com",
+  projectId: "budgetly-6a559",
+  appId: "1:682783929618:web:d2ab6e0f01786e6980efcb"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-    const form = document.getElementById("signupForm");
+const form = document.getElementById("signupForm");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Account created successfully!");
-        window.location.href = "login.html";
-      } catch (error) {
-        alert(error.message);
-      }
+  try {
+
+    // Create user
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Save the name to Firebase profile
+    await updateProfile(userCredential.user, {
+      displayName: name
     });
-  </script>
+
+    alert("Account created successfully!");
+    window.location.href = "login.html";
+
+  } catch (error) {
+    alert(error.message);
+  }
+});
+</script>
 <script src="js/theme.js"></script>
 </body>
 </html>

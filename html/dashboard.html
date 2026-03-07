@@ -149,7 +149,7 @@
 </div>
 
   <!-- SIDEBAR -->
-  <aside class="w-64 border-r border-black p-6 flex flex-col h-screen">
+  <aside class="w-64 border-r border-black p-6 flex flex-col min-h-screen sticky top-0">
 
     <h1 class="text-2xl font-bold mb-10">Budgetly</h1>
 
@@ -175,7 +175,7 @@
 
     </nav>
 
-<div class="mt-auto space-y-4">
+<div class="mt-auto space-y-4 sticky bottom-6 bg-white dark:bg-gray-900 pt-4">
 
   <!-- DARK MODE TOGGLE -->
   <div class="flex items-center justify-between">
@@ -212,6 +212,7 @@
     <!-- OVERVIEW SECTION -->
     <div id="overviewSection">
 
+      <h2 id="greetingText" class="text-lg text-gray-500 dark:text-gray-400 mb-1"></h2>
       <h2 class="text-3xl font-bold mb-8">Overview</h2>
 
       <div class="grid md:grid-cols-3 gap-6">
