@@ -7,6 +7,12 @@ import {
   checkEditCategory
 } from "./transactions/transactions.js";
 
+import {
+  createIncomeExpenseChart,
+  createCategoryChart,
+  generateInsight
+} from "./charts/charts.js";
+
 window.deleteTransaction = deleteTransaction;
 window.openEditModal = openEditModal;
 window.checkEditCategory = checkEditCategory;

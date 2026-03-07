@@ -12,6 +12,8 @@
   </script>
 </head>
 
+<body class="bg-white text-black dark:bg-gray-900 dark:text-white min-h-screen flex">
+
 <div id="editModal" class="modal-overlay hidden">
 
   <div class="modal w-[500px] shadow-xl">
@@ -146,10 +148,8 @@
   </div>
 </div>
 
-<body class="bg-white text-black min-h-screen flex">
-
   <!-- SIDEBAR -->
-  <aside class="w-64 border-r border-black p-6 flex flex-col">
+  <aside class="w-64 border-r border-black p-6 flex flex-col h-screen">
 
     <h1 class="text-2xl font-bold mb-10">Budgetly</h1>
 
@@ -175,12 +175,34 @@
 
     </nav>
 
-    <div class="mt-auto">
-      <button onclick="logout()"
-        class="w-full border border-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition">
-        Logout
-      </button>
-    </div>
+<div class="mt-auto space-y-4">
+
+  <!-- DARK MODE TOGGLE -->
+  <div class="flex items-center justify-between">
+
+    <span class="text-sm">Dark Mode</span>
+
+    <label class="relative inline-flex items-center cursor-pointer">
+
+      <input type="checkbox" id="darkToggle" class="sr-only peer">
+
+      <div class="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-600
+      peer-checked:bg-black transition"></div>
+
+      <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full
+      transition peer-checked:translate-x-5"></div>
+
+    </label>
+
+  </div>
+
+  <!-- LOGOUT -->
+  <button onclick="logout()"
+    class="w-full border border-black px-4 py-2 rounded-lg hover:bg-black hover:text-white transition">
+    Logout
+  </button>
+
+</div>
 
   </aside>
 
@@ -211,12 +233,48 @@
 
       </div>
 
-      <div class="mt-10 card">
-        <h3 class="font-semibold mb-4">Behavioral Insights</h3>
-        <p class="text-gray-600">
-          Insights will appear here based on spending patterns.
-        </p>
+<!-- Income vs Expense Chart -->
+<div class="grid md:grid-cols-2 gap-6 mt-10">
+
+  <!-- Income vs Expense -->
+  <div class="card">
+    <h3 class="font-semibold mb-4">Income vs Expenses</h3>
+      <div class="w-full h-72">
+        <canvas id="incomeExpenseChart"></canvas>
       </div>
+  </div>
+
+  <!-- Category Chart -->
+  <div class="card">
+    <h3 class="font-semibold mb-4">Spending by Category</h3>
+    <div class="flex justify-center">
+      <div class="w-64 h-64">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Spending Trend -->
+  <div class="mt-10 card">
+    <h3 class="font-semibold mb-4">Monthly Spending Trend</h3>
+    <canvas id="monthlyTrendChart" class="h-64"></canvas>
+  </div>
+
+  <!-- Yearly Spending Trend -->
+  <div class="mt-10 card">
+    <h3 class="font-semibold mb-4">Yearly Spending Trend</h3>
+    <canvas id="yearlyTrendChart" class="h-64"></canvas>
+  </div>
+
+</div>
+
+<!-- Behavioral Insights -->
+<div class="mt-10 card">
+  <h3 class="font-semibold mb-4">Behavioral Insights</h3>
+  <p id="insightText" class="text-gray-600">
+    Insights will appear here based on spending patterns.
+  </p>
+</div>
 
     </div>
 
@@ -411,6 +469,8 @@
   }
 </script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../js/theme.js"></script>
 <script type="module" src="../js/dashboard.js"></script>
 
 </body>

@@ -13,12 +13,16 @@ body {
 }
 
 /* Card containers */
-.card {
-  border: 1px solid black;
-  padding: 1.5rem;
-  border-radius: 0.75rem;
+.card{
   background: white;
-  transition: all 0.2s ease;
+  border: 1px solid black;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.dark .card{
+  background:#1f2937;
+  border:1px solid #374151;
 }
 
 .card:hover {

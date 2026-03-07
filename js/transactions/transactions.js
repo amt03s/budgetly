@@ -1,6 +1,13 @@
-
 import { db } from "../firebase.js";
 import { formatCurrency } from "../utils/format.js";
+
+import {
+  createIncomeExpenseChart,
+  createCategoryChart,
+  createMonthlyTrendChart,
+  createYearlyTrendChart,
+  generateInsight
+} from "../charts/charts.js";
 
 import {
   collection,
@@ -14,6 +21,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let unsubscribeTransactions = null;
+let totalIncome = 0;
+let totalExpenses = 0;
+let categoryTotals = {};
 
 function loadTransactions(uid, elements, state) {
 
@@ -72,6 +82,10 @@ function loadTransactions(uid, elements, state) {
     let totalIncome = 0;
     let totalExpenses = 0;
 
+    let categoryTotals = {};
+    let monthlyTotals = {};
+    let yearlyTotals = {};
+
     snapshot.forEach((docSnapshot) => {
 
       const data = docSnapshot.data();
@@ -81,10 +95,42 @@ function loadTransactions(uid, elements, state) {
         ? data.date.toDate().toISOString().split("T")[0]
         : "";
 
+      const date = data.date ? data.date.toDate() : null;
+
       if (data.type === "income") {
         totalIncome += data.amount;
       } else {
+
         totalExpenses += data.amount;
+
+        // Category totals
+        if (!categoryTotals[data.category]) {
+          categoryTotals[data.category] = 0;
+        }
+
+        categoryTotals[data.category] += data.amount;
+
+        // Monthly trend
+        if (date) {
+
+          const month = date.toLocaleString("default", { month: "short" });
+          const year = date.getFullYear();
+
+          const monthKey = `${month} ${year}`;
+
+          if (!monthlyTotals[monthKey]) {
+            monthlyTotals[monthKey] = 0;
+          }
+
+          monthlyTotals[monthKey] += data.amount;
+
+          // Yearly trend
+          if (!yearlyTotals[year]) {
+            yearlyTotals[year] = 0;
+          }
+
+          yearlyTotals[year] += data.amount;
+        }
       }
 
       const div = document.createElement("div");
@@ -132,6 +178,13 @@ function loadTransactions(uid, elements, state) {
     totalIncomeEl.textContent = `₱${formatCurrency(totalIncome)}`;
     totalExpensesEl.textContent = `₱${formatCurrency(totalExpenses)}`;
     remainingBalanceEl.textContent = `₱${formatCurrency(remaining)}`;
+
+    // Update charts
+    createIncomeExpenseChart(totalIncome, totalExpenses);
+    createCategoryChart(categoryTotals);
+    createMonthlyTrendChart(monthlyTotals);
+    createYearlyTrendChart(yearlyTotals);
+    generateInsight(categoryTotals);
   });
 }
 
@@ -145,31 +198,33 @@ async function deleteTransaction(id) {
   } catch (error) {
     console.error("Error deleting transaction:", error);
   }
-};
+}
 
 function openEditModal(id, description, amount, type, category, wallet, date) {
 
-  let modalEditId = null;
+  let modalEditId = id;
 
   document.getElementById("editDescription").value = description;
   document.getElementById("editAmount").value = amount;
   document.getElementById("editType").value = type;
   document.getElementById("editDate").value = date;
 
-  // Copy wallet dropdown options
   const editWallet = document.getElementById("editWallet");
+  const walletSelect = document.getElementById("walletSelect");
+
   editWallet.innerHTML = walletSelect.innerHTML;
   editWallet.value = wallet;
 
   document.getElementById("editCategory").value = category;
 
-  // Trigger category check
   checkEditCategory();
 
+  const editModal = document.getElementById("editModal");
   editModal.classList.remove("hidden");
-};
+}
 
 function checkEditCategory() {
+
   const category = document.getElementById("editCategory").value;
   const customInput = document.getElementById("editCustomCategory");
 
@@ -181,8 +236,7 @@ function checkEditCategory() {
     customInput.required = false;
     customInput.value = "";
   }
-};
-
+}
 
 export {
   loadTransactions,
@@ -190,3 +244,6 @@ export {
   openEditModal,
   checkEditCategory
 };
+
+window.deleteTransaction = deleteTransaction;
+window.openEditModal = openEditModal;
