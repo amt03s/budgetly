@@ -1,0 +1,125 @@
+/* Dashboard CSS*/
+
+/* General page styling */
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.section-box {
+  border: 1px solid black;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background: white;
+}
+
+/* Card containers */
+.card {
+  border: 1px solid black;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal box */
+.modal {
+  background: white;
+  border: 1px solid black;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 400px;
+}
+
+/* Buttons */
+.btn-primary {
+  background: black;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-outline {
+  border: 1px solid black;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: #f3f3f3;
+}
+
+/* Inputs */
+.input-field {
+  border: 1px solid black;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  width: 100%;
+}
+
+/* Tables */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.5rem;
+  border-bottom: 1px solid black;
+}
+
+.table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Flex helpers */
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Spacing helpers */
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+/* Filter buttons */
+
+.filter-btn {
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background: #f3f3f3;
+}

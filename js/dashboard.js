@@ -186,17 +186,17 @@ window.goToTransactions = function() {
 function showSection(section) {
 
   if (section !== "transactions" && section !== "singleWallet") {
-  state.currentFilter = "all";
+    state.currentFilter = "all";
 
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.classList.remove("underline", "font-semibold");
-  });
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.classList.remove("underline", "font-semibold");
+    });
 
-  const firstFilterBtn = document.querySelector(".filter-btn");
-  if (firstFilterBtn) {
-    firstFilterBtn.classList.add("underline", "font-semibold");
+    const firstFilterBtn = document.querySelector(".filter-btn");
+    if (firstFilterBtn) {
+      firstFilterBtn.classList.add("underline", "font-semibold");
+    }
   }
-}
 
   if (section !== "singleWallet") {
     state.currentWallet = null;
@@ -213,5 +213,8 @@ function showSection(section) {
 window.logout = function() {
   window.location.href = "login.html";
 };
+
+// make showSection accessible to HTML
+window.showSection = showSection;
 
 export { showSection };

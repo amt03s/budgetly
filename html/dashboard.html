@@ -5,15 +5,16 @@
   <title>Dashboard - Budgetly</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../css/styles.css">
 
   <script>
     tailwind.config = { darkMode: 'class' }
   </script>
 </head>
 
-<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
+<div id="editModal" class="modal-overlay hidden">
 
-  <div class="bg-white border border-black p-8 rounded-2xl w-[500px] shadow-xl">
+  <div class="modal w-[500px] shadow-xl">
 
     <h2 class="text-2xl font-bold mb-6 text-center">Edit Transaction</h2>
 
@@ -21,33 +22,35 @@
 
       <!-- WALLET -->
       <select id="editWallet"
-        class="w-full border border-black p-3 rounded-lg" required>
+        class="w-full input-field" required>
       </select>
 
       <!-- DESCRIPTION -->
-      <input type="text" id="editDescription"
-        class="w-full border border-black p-3 rounded-lg"
-        placeholder="Description" required>
+      <input type="text"
+      id="editDescription"
+      class="input-field"
+      placeholder="Description" required>
 
       <!-- AMOUNT -->
-      <input type="number" id="editAmount"
-        class="w-full border border-black p-3 rounded-lg"
-        placeholder="Amount" required>
+      <input type="number"
+      id="editAmount"
+      class="input-field"
+      placeholder="Amount" required>
 
       <!-- TYPE -->
       <select id="editType"
-        class="w-full border border-black p-3 rounded-lg">
+        class="w-full input-field">
         <option value="income">Income</option>
         <option value="expense">Expense</option>
       </select>
 
       <!-- DATE -->
       <input type="date" id="editDate"
-        class="w-full border border-black p-3 rounded-lg" required>
+        class="w-full input-field" required>
 
       <!-- CATEGORY -->
       <select id="editCategory"
-        class="w-full border border-black p-3 rounded-lg"
+        class="w-full input-field"
         onchange="checkEditCategory()">
         <option value="Food">Food</option>
         <option value="Transport">Transport</option>
@@ -62,18 +65,18 @@
         type="text"
         id="editCustomCategory"
         placeholder="Custom Category"
-        class="w-full border border-black p-3 rounded-lg invisible"
+        class="w-full input-field invisible"
       >
 
       <div class="flex justify-between mt-6">
         <button type="button"
           onclick="closeModal()"
-          class="px-4 py-2 border border-black rounded-lg hover:bg-black hover:text-white transition">
+          class="btn-outline">
           Cancel
         </button>
 
         <button type="submit"
-          class="px-4 py-2 bg-black text-white rounded-lg hover:opacity-80 transition">
+          class="btn-primary">
           Update
         </button>
       </div>
@@ -93,7 +96,7 @@
     <input
       type="text"
       id="editWalletNameInput"
-      class="w-full border border-black p-3 rounded-lg mb-6"
+      class="w-full input-field mb-6"
       placeholder="Wallet Name"
     >
 
@@ -106,7 +109,7 @@
 
       <button
         onclick="confirmEditWallet()"
-        class="px-4 py-2 bg-black text-white rounded-lg hover:opacity-80 transition">
+        class="px-4 py-2 btn-primary hover:opacity-80 transition">
         Save
       </button>
     </div>
@@ -191,24 +194,24 @@
 
       <div class="grid md:grid-cols-3 gap-6">
 
-        <div class="border border-black p-6 rounded-xl">
+        <div class="card">
           <h3 class="font-semibold mb-2">Total Income</h3>
           <p id="totalIncome" class="text-2xl font-bold">₱0.00</p>
         </div>
 
-        <div class="border border-black p-6 rounded-xl">
+        <div class="card">
           <h3 class="font-semibold mb-2">Total Expenses</h3>
           <p id="totalExpenses" class="text-2xl font-bold">₱0.00</p>
         </div>
 
-        <div class="border border-black p-6 rounded-xl">
+        <div class="card">
           <h3 class="font-semibold mb-2">Remaining Balance</h3>
           <p id="remainingBalance" class="text-2xl font-bold">₱0.00</p>
         </div>
 
       </div>
 
-      <div class="mt-10 border border-black p-6 rounded-xl">
+      <div class="mt-10 card">
         <h3 class="font-semibold mb-4">Behavioral Insights</h3>
         <p class="text-gray-600">
           Insights will appear here based on spending patterns.
@@ -222,7 +225,7 @@
 
       <h2 class="text-3xl font-bold mb-8">Transactions</h2>
 
-      <div class="border border-black p-6 rounded-xl mb-8">
+      <div class="card mb-8">
         <h3 class="text-xl font-semibold mb-4">Add Transaction</h3>
 
           <form id="transactionForm" class="space-y-4">
@@ -230,7 +233,7 @@
           <!-- ROW 1: Wallet + Description -->
           <div class="grid md:grid-cols-2 gap-4">
             <select id="walletSelect"
-              class="border border-black p-3 rounded-lg" required>
+              class="input-field" required>
 
               <option value="" disabled selected hidden>
                 Select Wallet
@@ -239,17 +242,17 @@
 
             <input type="text" id="description"
               placeholder="Description"
-              class="border border-black p-3 rounded-lg" required>
+              class="input-field" required>
           </div>
 
           <!-- ROW 2: Amount + Type + Date -->
           <div class="grid md:grid-cols-3 gap-4">
             <input type="number" id="amount"
               placeholder="Amount"
-              class="border border-black p-3 rounded-lg" required>
+              class="input-field" required>
 
             <select id="type"
-              class="border border-black p-3 rounded-lg" required>
+              class="input-field" required>
 
               <option value="" disabled selected hidden>
                 Type
@@ -262,7 +265,7 @@
             <input
               type="date"
               id="transactionDate"
-              class="border border-black p-3 rounded-lg"
+              class="input-field"
               required
             >
           </div>
@@ -271,7 +274,7 @@
           <div class="grid md:grid-cols-2 gap-4">
 
             <select id="category"
-              class="border border-black p-3 rounded-lg"
+              class="input-field"
               onchange="checkCategory()"
               required>
 
@@ -291,7 +294,7 @@
               type="text"
               id="customCategory"
               placeholder="Custom Category"
-              class="border border-black p-3 rounded-lg invisible"
+              class="input-field invisible"
             >
           </div>
 
@@ -322,7 +325,7 @@
       <div>
         <h3 class="text-xl font-semibold mb-4">Transaction List</h3>
         <div id="transactionList"
-          class="border border-black p-4 rounded-lg space-y-3">
+          class="section-box space-y-3">
         </div>
       </div>
 
@@ -333,7 +336,7 @@
 
       <h2 class="text-3xl font-bold mb-8">Wallets</h2>
 
-      <div class="border border-black p-6 rounded-xl mb-8">
+      <div class="card mb-8">
         <h3 class="text-xl font-semibold mb-4">Add Wallet</h3>
 
         <form id="walletForm" class="flex gap-4">
@@ -341,12 +344,12 @@
             type="text"
             id="walletName"
             placeholder="Wallet Name"
-            class="border border-black p-3 rounded-lg flex-1"
+            class="input-field flex-1"
             required
           >
 
           <button type="submit"
-            class="bg-black text-white px-6 rounded-lg">
+            class="btn-primary">
             Add
           </button>
         </form>
@@ -361,7 +364,7 @@
 
       <h2 id="singleWalletTitle" class="text-3xl font-bold mb-4"></h2>
 
-      <div class="border border-black p-6 rounded-xl mb-8">
+      <div class="card mb-8">
         <h3 class="font-semibold mb-2">Wallet Balance</h3>
         <p id="singleWalletBalance" class="text-2xl font-bold">₱0.00</p>
       </div>
@@ -384,15 +387,13 @@
       <div>
         <h3 class="text-xl font-semibold mb-4">Transactions</h3>
         <div id="singleWalletTransactions"
-          class="border border-black p-4 rounded-lg space-y-3">
+          class="section-box space-y-3">
         </div>
       </div>
 
     </div>
 
   </main>
-
-  <!-- SECTION SWITCHING SCRIPT -->
 
 <script>
   function checkCategory() {
